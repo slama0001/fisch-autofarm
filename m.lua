@@ -2,10 +2,12 @@ Drawing.clear()
 _G.Toggle = false
 local completion = 0.01
 -- if bar is higher than this percent it casts (0.01 - 0.99)
-local speed = 0.15
+local speed = 0.1
 -- go from 0.15 to however high you want. changes how fast you click on the shake buttons
 
 -- dont change
+local minSpeed = 0.02
+local maxSpeed = 0.15
 local casted = false
 local MouseService = findfirstchild(Game, "MouseService")
 local screen = getscreendimensions()
@@ -85,21 +87,21 @@ local Text1 = Drawing.new("Text")
 local Text2 = Drawing.new("Text")
 local Text3 = Drawing.new("Text")
 local Screen = getscreendimensions()
-Text1.Text = "Off | [LCtrl] To Enable"
-Text2.Text = "speed: " .. speed
+Text1.Text = "OFF LCTRL TO ENABLE"
+Text2.Text = "SPEED: " .. speed
 Text3.Text = "F6 TO LOWER F7 TO HIGHER"
-Text1.Size = 14
-Text2.Size = 14
-Text3.Size = 14
+Text1.Size = 15
+Text2.Size = 15
+Text3.Size = 15
 Text1.Visible = true
 Text2.Visible = true
 Text3.Visible = true
 Text1.Color = {255,0,0}
 Text2.Color = {255,255,255}
 Text3.Color = {255,255,255}
-Text1.Font = 2
-Text2.Font = 2
-Text3.Font = 2
+Text1.Font = 14
+Text2.Font = 14
+Text3.Font = 14
 Text1.Position = {0, Screen.y/2}
 Text2.Position = {0, Screen.y/2 + 30}
 Text3.Position = {0, Screen.y/2 + 15}
@@ -108,26 +110,28 @@ local function keycheck()
     while true do
         local current = tick()
         for _, key in ipairs(getpressedkeys()) do
-            if key == "LeftCtrl" and current - cached > 0.8 then
+            if key == "LeftCtrl" then
                 _G.Toggle = not _G.Toggle
                 cached = current
             elseif key == "L" and current - cached > 0.8 then
                 _G.legit = not _G.legit
                 cached = current
-            elseif key == "F6" and current - cached > 0.8 then
-               speed -= 0.01
+            elseif key == "F6" then
+               speed = math.max(speed - 0.01, minSpeed)
+			   speed = math.floor(speed * 100 + 0.5) / 100
                cached = current
-            elseif key == "F7" and current - cached > 0.8 then
-                speed += 0.01
+            elseif key == "F7" then
+                speed = math.min(speed + 0.01, maxSpeed)
+				speed = math.floor(speed * 100 + 0.5) / 100
                 cached = current
             end
             if _G.Toggle then
                 Text1.Color = {0,255,0}
-                Text1.Text = "On | [LCtrl] To Disable"
-                Text2.Text = "speed: " .. speed
+                Text1.Text = "ON LCTRL TO DISABLE"
+                Text2.Text = "SPEED: " .. speed
             else
                 Text1.Color = {255,0,0}
-                Text1.Text = "Off | [LCtrl] To Enable"
+                Text1.Text = "OFF LCTRL TO ENABLE"
             end
             wait(0.05)
         end
@@ -174,7 +178,6 @@ while _G.auto == true do
         end
             if casted ~= true then
             if not pressed then
-                mousemoveabs(screen.x / 2 + math.random(1,2), screen.y / 2 + math.random(1,2))
                 mouse1press()
                 pressed = true
             end
@@ -204,18 +207,35 @@ while _G.auto == true do
         local Y = button:GetMemoryValue(0x198, "float")
         local Size = button:GetMemoryValue(0x118, "float")
         local CalcX = X + (Size / 2)
-        local CalcY = Y + (Size / 2)
+        local CalcY = Y + (Size / 15)
     
-        if CalcX > 50 and CalcY > 50 then
-        mousemoveabs(CalcX, CalcY)
-        mousemoveabs(CalcX + math.random(2,4), CalcY - math.random(2,4))
-        wait(0.001)
-        mousemoveabs(CalcX + math.random(-Size / 4, Size / 4), CalcY - math.random(-Size / 4, Size / 4))
-        mouse1click()
-        end
-        wait(speed)
-    end
+		local lastButton = nil
+		local clicked = false
 
+		local button = getbutton()
+		if button then
+
+			if lastButton ~= button then
+				clicked = false
+				lastButton = button
+			end
+
+
+			if CalcX > 50 and CalcY > 50 and not clicked then
+				mousemoveabs(CalcX, CalcY)
+				mousemoveabs(CalcX + math.random(1,4), CalcY - math.random(1,4))
+				wait(0.003)
+				mousemoveabs(CalcX + math.random(-Size / 8, Size / 8), CalcY - math.random(-Size / 8, Size / 8))
+				mouse1click()
+				
+				clicked = true
+			end
+		end
+
+		wait(speed)
+
+    end
+		
     -- REELING PART
     if _G.Toggle and casted then
         setrodname("Developers Rod") 
