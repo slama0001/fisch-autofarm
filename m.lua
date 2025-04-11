@@ -57,7 +57,7 @@ local function setrodname(name)
             if not oldname and string.match(getname(Tools), "Rod") then oldname = getname(Tools) end
             sigma = Tools
             if sigma then
-                local balloon = getmemoryvalue(sigma, 0x70, "qword")
+                local balloon = getmemoryvalue(sigma, 0x78, "qword")
                 local ptr = pointer_to_user_data(balloon)
                 local name = setmemoryvalue(ptr, 0x0, "string", name)
             end
@@ -203,9 +203,9 @@ while _G.auto == true do
     local button = getbutton()
     if _G.Toggle and casted and button then
         local mice = getmouseposition()
-        local X = button:GetMemoryValue(0x110, "float")
-        local Y = button:GetMemoryValue(0x198, "float")
-        local Size = button:GetMemoryValue(0x118, "float")
+        local X = button:GetMemoryValue(0x118, "float")
+        local Y = button:GetMemoryValue(0x1a0, "float")
+        local Size = button:GetMemoryValue(0x120, "float")
         local CalcX = X + (Size / 2)
         local CalcY = Y + (Size / 15)
     
